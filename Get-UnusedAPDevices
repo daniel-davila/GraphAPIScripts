@@ -1,0 +1,11 @@
+Connect-MSGraph -ForceInteractive
+Update-MSGraphEnvironment -SchemaVersion beta -Quiet
+$devices = Get-AutopilotDevice | Get-MSGraphAllPages | ? { $_.enrollmentState -eq "notContacted" }
+$today = get-date
+
+foreach ($record in $devices)
+{
+	[datetime]$AssignedDate = $record.deploymentProfileAssignedDateTime
+	$elapsedTime = New-TimeSpan -Start $AssignedDate -End $today
+	Write-host "$($record.SerialNumber) hasn't been used in $($elapsedTime.days) days"
+}
